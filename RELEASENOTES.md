@@ -21,4 +21,4 @@ Modify swagger
 ### JIRA Issue
 CAAS-3702
 ### release notes
-Deploy mobile-oauth-agent development (sprint8-sprint12) to production environment
+Deploy oauth-client development (sprint8-sprint12) to production environment

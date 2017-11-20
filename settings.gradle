@@ -1,5 +1,4 @@
 rootProject.name = 'oauth-client'
-//includeBuild '../yaas-spring-boot-starter-multi-tenant'
 include 'client'
 include 'server'
 

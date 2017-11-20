@@ -48,8 +48,9 @@ public class OauthController {
         clientId = "clientId";
         clientSecret = "clientSecret";
         accessTokenUrl = "authorize";
-        redirectUrl = "http://localhost:8081/oauth/client/callback";
+        redirectUrl = "http://localhost:8081/oauth/client/token";
         response_type = "code";
+        System.out.println("-----------客户端/Get Authorize Code By ClientId Begin--------------------------------------------------------------------------------");
 
         OAuthClient oAuthClient =new OAuthClient(new URLConnectionClient());
         String requestUrl = null;
@@ -66,18 +67,20 @@ public class OauthController {
         } catch (OAuthSystemException e) {
             e.printStackTrace();
         }
+        System.out.println("-----------客户端/Get Authorize Code By ClientId End--------------------------------------------------------------------------------");
+
         response.sendRedirect("http://localhost:8082/oauth/server/"+requestUrl);
     }
 
     //接受客户端返回的code，提交申请access token的请求
-    @RequestMapping("/callback")
-    public Object toLogin(HttpServletRequest request)throws OAuthProblemException {
-        System.out.println("-----------客户端/callback--------------------------------------------------------------------------------");
+    @RequestMapping("/token")
+    public void getAccessTokenByCode(HttpServletRequest request,HttpServletResponse response)throws OAuthProblemException ,IOException{
+        System.out.println("-----------客户端/Get AccessToken By Code Begin--------------------------------------------------------------------------------");
         clientId = "clientId";
         clientSecret = "clientSecret";
         accessTokenUrl="http://localhost:8082/oauth/server/token";
         userInfoUrl = "userInfoUrl";
-        redirectUrl = "http://localhost:8081/oauth/client/token";
+        redirectUrl = "http://localhost:8081/oauth/client/userInfo";
         HttpServletRequest httpRequest = (HttpServletRequest)request;
         code = httpRequest.getParameter("code");
         System.out.println(code);
@@ -98,19 +101,18 @@ public class OauthController {
             //查看access token是否过期
             Long expiresIn =oAuthResponse.getExpiresIn();
             System.out.println("客户端/callbackCode方法的token：：："+accessToken);
-            System.out.println("-----------客户端/callbackCode--------------------------------------------------------------------------------");
-            return"redirect:http://localhost:8081/oauth/client/accessToken?accessToken="+accessToken;
+            System.out.println("----------客户端/Get AccessToken By Code End--------------------------------------------------------------------------------");
+            response.sendRedirect("http://localhost:8081/oauth/client/userInfo?accessToken="+accessToken);
         } catch (OAuthSystemException e) {
             e.printStackTrace();
         }
-        return null;
     }
 
 
     //接受服务端传回来的access token，由此token去请求服务端的资源（用户信息等）
-    @RequestMapping("/token")
-    public ModelAndView accessToken(String accessToken) {
-        System.out.println("---------客户端/accessToken----------------------------------------------------------------------------------");
+    @RequestMapping("/userInfo")
+    public String getUserInfoByAccessToken(String accessToken) {
+        System.out.println("---------客户端/Get UserInfo by AccessToken Begin----------------------------------------------------------------");
         userInfoUrl = "http://localhost:8082/userInfo";
         System.out.println("accessToken:"+accessToken);
         OAuthClient oAuthClient =new OAuthClient(new URLConnectionClient());
@@ -120,12 +122,8 @@ public class OauthController {
             OAuthClientRequest userInfoRequest =new OAuthBearerClientRequest(userInfoUrl)
                     .setAccessToken(accessToken).buildQueryMessage();
             OAuthResourceResponse resourceResponse =oAuthClient.resource(userInfoRequest, OAuth.HttpMethod.GET, OAuthResourceResponse.class);
-            String username = resourceResponse.getBody();
-            System.out.println(username);
-            ModelAndView modelAndView =new ModelAndView("usernamePage");
-            modelAndView.addObject("username",username);
-            System.out.println("---------客户端/accessToken----------------------------------------------------------------------------------");
-            return modelAndView;
+            System.out.println("---------客户端/Get UserInfo by AccessToken End----------------------------------------------------------------------------------");
+            return  resourceResponse.getBody();
         } catch (OAuthSystemException e) {
             e.printStackTrace();
         } catch (OAuthProblemException e) {
