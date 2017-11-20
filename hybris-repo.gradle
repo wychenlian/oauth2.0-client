@@ -1,0 +1,30 @@
+// externalize these variables to be available in the gradle build who uses this file
+ext.artifactory_username = project.hasProperty('artifactory_username') ? artifactory_username : System.env.artifactory_username
+ext.artifactory_password = project.hasProperty('artifactory_password') ? artifactory_password : System.env.artifactory_password
+ext.artifactory_url = 'https://repository.hybris.com/hybris-repository'
+ext.artifactory_release_repo = 'https://repository.hybris.com/yaas-release'
+ext.artifactory_snapshot_repo = 'https://repository.hybris.com/yaas-snapshot'
+
+repositories.ext.hybrisCenter = {
+    if (artifactory_username && artifactory_password) {
+        repositories.maven {
+            url artifactory_url
+            credentials {
+                username artifactory_username
+                password artifactory_password
+            }
+        }
+    }
+}
+
+project.buildscript.repositories.ext.hybrisCenter = {
+    if (artifactory_username && artifactory_password) {
+        project.buildscript.repositories.maven {
+            url artifactory_url
+            credentials {
+                username artifactory_username
+                password artifactory_password
+            }
+        }
+    }
+}

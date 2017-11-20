@@ -1,0 +1,47 @@
+/oauth2/api/v1/authorize:
+  get:
+    tags:
+      - "oauth"
+    summary: Get authorization code by clientId.
+    description: Get authorization code by clientId.
+    parameters:
+    - $ref: "./parameters.yaml#/responseType"
+    - $ref: "./parameters.yaml#/clientId"
+    responses:
+      201:
+        description: Created a Shipping Zone Successfully.
+      400:
+        description: The error response schema.
+        schema:
+          $ref: "./api-description.yaml#/definitions/ErrorSchema400"
+      404:
+        description: Request url not found.
+        schema:
+          $ref: "./api-description.yaml#/definitions/ErrorSchema404"
+      500:
+        description: Server error.
+        schema:
+          $ref: "./api-description.yaml#/definitions/ErrorSchema500"
+/oauth2/api/v1/token:
+  post:
+      tags:
+        - "oauth"
+      summary:  Get accessToken by authorization code or freshcode.
+      description: Get accessToken by authorization code or freshcode.
+      parameters:
+      - $ref: "./parameters.yaml#/accessTokenRequest"
+      responses:
+        200:
+          description: Get zone successfully.
+        400:
+          description: The error response schema.
+          schema:
+            $ref: "./api-description.yaml#/definitions/ErrorSchema400"
+        404:
+          description: Request url not found.
+          schema:
+            $ref: "./api-description.yaml#/definitions/ErrorSchema404"
+        500:
+          description: Server error.
+          schema:
+            $ref: "./api-description.yaml#/definitions/ErrorSchema500"

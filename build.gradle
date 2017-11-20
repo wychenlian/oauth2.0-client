@@ -1,0 +1,174 @@
+buildscript {
+    apply from: 'hybris-repo.gradle'
+    ext {
+        springBootVersion = '1.5.6.RELEASE'
+    }
+
+    repositories {
+        hybrisCenter()
+        jcenter()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'io.github.robwin:jgitflow-gradle-plugin:0.5.0'
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4+'
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+        classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.2.1'
+        classpath 'org.standardout:gradle-versioneye-plugin:1.4.0'
+        classpath group: 'org.whitesource', name: 'whitesource-gradle-plugin', version: '0.7'
+    }
+}
+
+apply from: 'hybris-repo.gradle'
+apply plugin: 'com.jfrog.artifactory'
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.github.robwin.jgitflow'
+apply plugin: 'org.sonarqube'
+apply plugin: 'org.standardout.versioneye'
+apply plugin: 'jacoco'
+apply plugin: 'application'
+apply plugin: 'whitesource'
+
+repositories {
+    hybrisCenter()
+    jcenter()
+    mavenLocal()
+}
+
+ext {
+    guavaVersion = '23.0'
+    eclipselinkVersion = '2.7.0'
+    postgresqlVersion = '42.1.4'
+    yaasStarterErrorHandling = '1.0.9'
+    yaasStarterLogging = '1.0.1'
+    jacocoVersion = '0.7.9'
+    apacheCommonsLang3Version = '3.6'
+    yaasStarterMutlitenant = '1.0.3-SNAPSHOT'
+    yaasStarterSwagger = '1.0.3'
+    yaasStarterSecurity = '1.0.6'
+    dbMigration='0.0.1-SNAPSHOT'
+}
+
+group = 'com.hybris.caas'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+sonarqube {
+    properties {
+        property "sonar.sourceEncoding", "UTF-8"
+        property "sonar.profile", "Yaas - CaaS 2 - Mooncake"
+        property "sonar.projectVersion", "${version}"
+        property "sonar.exclusions", "src/main/resources/static/api-console/**"
+    }
+}
+
+whitesource {
+    orgToken 'b39d1328-52e2-42e3-98f0-932709daf3f0'
+    productName 'SHC - COMMERCE AS A SERVICE 2.0'
+    checkPolicies = true
+    failOnError = true
+}
+
+dependencies {
+    compile "org.springframework.boot:spring-boot-devtools"
+    compile 'org.springframework.boot:spring-boot-starter-web'
+    compile 'org.springframework.boot:spring-boot-starter-data-jpa'
+    compile "org.eclipse.persistence:org.eclipse.persistence.jpa:${eclipselinkVersion}"
+    compile "org.apache.commons:commons-lang3:${apacheCommonsLang3Version}"
+    compile "org.postgresql:postgresql:${postgresqlVersion}"
+    compile "com.google.guava:guava:${guavaVersion}"
+    compile 'net.logstash.logback:logstash-logback-encoder:4.11'
+
+    compile "com.hybris.caas:yaas-spring-boot-starter-error-handling:${yaasStarterErrorHandling}"
+    compile "com.hybris.caas:yaas-spring-boot-starter-logging:${yaasStarterLogging}"
+    compile group: 'com.sap.cloud.yaas.service-sdk', name: 'service-sdk-logging', version: '4.16.0'
+    compile group: 'com.sap.cloud.yaas.service-sdk', name: 'service-sdk-raml-rewriter', version: '4.16.0'
+    compile 'org.apache.httpcomponents:httpclient:4.5.3'
+    compile "com.hybris.caas:yaas-spring-boot-starter-multi-tenant:${yaasStarterMutlitenant}"
+    compile group: 'com.sap.cloud.yaas.rammler', name: 'rammler-java-client-support', version: '1.7.2'
+    compile group: 'com.sap.cloud.yaas.service-sdk', name: 'service-sdk-authorization', version: '4.16.0'
+    compile 'com.sap.cloud.yaas.rammler:rammler-java-client-support:1.8.0'
+    compile "com.hybris.caas:yaas-spring-boot-starter-swagger:${yaasStarterSwagger}"
+//    compile "com.hybris.caas:yaas-spring-boot-starter-security:${yaasStarterSecurity}"
+
+    compile group: 'org.flywaydb', name: 'flyway-core', version: '4.2.0'
+    compile("com.hybris.caas:db-migration:${dbMigration}") { changing = true }
+
+    compile("org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:0.31")
+
+    compile "io.vavr:vavr:0.9.0"
+    compile "ma.glasnost.orika:orika-core:1.5.2"
+
+    testCompile 'io.rest-assured:rest-assured:3.0.3'
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
+
+    compile('org.springframework.cloud:spring-cloud-spring-service-connector:1.2.1.RELEASE'){
+        exclude group: 'org.springframework', module: 'spring-context'
+    }
+    compile('org.springframework.cloud:spring-cloud-cloudfoundry-connector:1.2.2.RELEASE')
+
+    compile('org.apache.commons:commons-dbcp2:2.1.1')
+    compile('com.sap.hcp.cf.logging:cf-java-logging-support-servlet:2.1.1')
+    compile('com.sap.hcp.cf.logging:cf-java-logging-support-logback:2.1.1')
+    compile('com.sap.hcp.cf.logging:cf-java-logging-support-core:2.1.1')
+
+
+    compileOnly 'org.projectlombok:lombok:1.16.18'
+    testCompile "com.github.tomakehurst:wiremock-standalone:2.8.0"
+
+}
+
+compileJava {
+    options.compilerArgs << '-parameters'
+}
+
+test {
+    systemProperties System.properties
+}
+
+versioneye {
+    baseUrl = 'https://versioneye.hybris.com'
+    includePlugins = false
+    // next line is a workaround for issue https://github.com/stempler/gradle-versioneye-plugin/issues/34
+    // requires to use gradle 3.3 as well, until fixed, ie: gradle wrapper --gradle-version 3.3 && ./gradlew -info versioneye-*
+    exclude project.configurations.findAll { !it.canBeResolved }*.name as String[]
+}
+
+jacoco {
+    toolVersion = jacocoVersion
+}
+
+task unitTest(type: Test) {
+    exclude '**/*IntegrationTest*'
+}
+
+task integrationTest(type: Test) {
+    systemProperties System.properties
+    include '**/*IntegrationTest*'
+}
+
+task importProducts(type: JavaExec) {
+    classpath sourceSets.test.runtimeClasspath
+    main = "com.hybris.caas.product.importer.ProductsImporterRunner"
+
+    args System.getProperty("env") == null ? "dev" : System.getProperty("env"),
+            System.getProperty("tenant") == null ? "sap" : System.getProperty("tenant")
+}
+
+task copyCompiles(type: Copy) {
+    from configurations.compile
+    into 'dependencies'
+}
+
+task copyCompileOnlys(type: Copy) {
+    from configurations.compileOnly
+    into 'dependencies'
+}
+task copyTestCompiles(type: Copy) {
+    from configurations.testCompile
+    into 'dependencies'
+}

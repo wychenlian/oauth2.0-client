@@ -1,0 +1,25 @@
+---
+spring:
+  profiles: prod
+  jpa:
+    show-sql: false
+    properties:
+      eclipselink:
+        logging.level: INFO
+        generate-ddl: none
+        jdbc.allow-native-sql-queries: true
+        cache.shared.default: false
+#  datasource:
+#    url: jdbc:postgresql://${SHIPPING_SERVICE_DB_HOST}/${SHIPPING_SERVICE_DB_NAME}?currentSchema=caas2
+#    username: ${SHIPPING_SERVICE_DB_AUTH_NAME}
+#    password: ${SHIPPING_SERVICE_DB_AUTH_PASS}
+vcap.application: ${vcap.something}
+server:
+  port: 8081
+flyway:
+  enabled: true
+  locations:
+    - db/migration/oauth_client
+  table: oauth_client_schema_version
+  schemas: caas2
+  baselineOnMigrate: true

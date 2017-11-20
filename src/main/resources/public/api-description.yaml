@@ -1,0 +1,195 @@
+swagger: "2.0"
+info:
+  description: "Mobile Oauth Agent Service API"
+  version: "v1"
+  title: "Mobile Oauth Agent Service"
+  contact:
+    name: "team Bamboo"
+    email: "DL_58AF9BFD7BCF846669000097@exchange.sap.corp"
+basePath: /
+
+consumes:
+- "application/json"
+produces:
+- "application/json"
+- "application/x-www-form-urlencoded"
+tags:
+- name: "Oauth2"
+  description: ""
+paths:
+  allOf:
+  - $ref: "./paths.yaml"
+parameters:
+  allOf:
+  - $ref: "./parameters.yaml"
+responses:
+  Created:
+    description: A new resource is created.
+    headers:
+      location:
+        type: string
+        description: A URI link to the created resource.
+  BadRequest:
+    description: Bad request or validation violation.
+    schema:
+     $ref: '#/definitions/ErrorSchema400'
+  NotFound:
+    description: Resource not found.
+    schema:
+     $ref: '#/definitions/ErrorSchema404'
+  Conflict:
+    description: Resource already exists.
+    schema:
+     $ref: '#/definitions/ErrorSchema409'
+  InternalServerError:
+    description: Internal server error.
+    schema:
+      $ref: '#/definitions/ErrorSchema500'
+definitions:
+  ErrorSchema400:
+    type: object
+    description: The error response schema.
+    properties:
+      status:
+        type: number
+        minimum: 100
+        maximum: 600
+      message:
+        type: string
+      type:
+        type: string
+      moreInfo:
+        type: string
+      details:
+        type: array
+        items:
+          $ref: "#/definitions/ErrorDetailSchema"
+    example:
+      status: 400
+      message: The requested body payload for a POST or PUT operation is missing, which violates the defined validation constraints. This denotes a missing field when a value is expected.
+      moreInfo: https://api.us.yaas.io/patterns/errortypes.html
+      type: validation_violation
+      details:
+        field: categoryId,
+        type: invalid_field,
+        message: may not be null,
+        moreInfo: https://api.us.yaas.io/patterns/errortypes.html
+  ErrorSchema404:
+    type: object
+    description: The error response schema.
+    properties:
+      status:
+        type: number
+        minimum: 100
+        maximum: 600
+      message:
+        type: string
+      type:
+        type: string
+      moreInfo:
+        type: string
+      details:
+        type: array
+        items:
+          $ref: "#/definitions/ErrorDetailSchema"
+    example:
+      status: 404
+      message: ID '7tbJKgi9th' is not found.
+      moreInfo: https://api.us.yaas.io/patterns/errortypes.html
+      type: element_resource_non_existing
+  ErrorSchema409:
+    type: object
+    description: The error response schema.
+    properties:
+      status:
+        type: number
+        minimum: 100
+        maximum: 600
+      message:
+        type: string
+      type:
+        type: string
+      moreInfo:
+        type: string
+      details:
+        type: array
+        items:
+          $ref: "#/definitions/ErrorDetailSchema"
+    example:
+      status: 409
+      message: There is already a resource with the same unique identifier(s).
+      moreInfo: https://api.us.yaas.io/patterns/errortypes.html
+      type: conflict_resource
+  ErrorSchema415:
+      type: object
+      description: The error response schema.
+      properties:
+        status:
+          type: number
+          minimum: 100
+          maximum: 600
+        message:
+          type: string
+        type:
+          type: string
+        moreInfo:
+          type: string
+        details:
+          type: array
+          items:
+            $ref: "#/definitions/ErrorDetailSchema"
+      example:
+        status: 415
+        message: There is already a resource with the same unique identifier(s).
+        moreInfo: https://api.us.yaas.io/patterns/errortypes.html
+        type: unsupported_request_content_type
+  ErrorSchema500:
+    type: object
+    description: The error response schema.
+    properties:
+      status:
+        type: number
+        minimum: 100
+        maximum: 600
+      message:
+        type: string
+      type:
+        type: string
+      moreInfo:
+        type: string
+      details:
+        type: array
+        items:
+          $ref: "#/definitions/ErrorDetailSchema"
+    example:
+      status: 500
+      message: A server-side exception occurred that prevented the system from correctly returning the result.
+      moreInfo: https://api.us.yaas.io/patterns/errortypes.html
+      type: internal_server_error
+  ErrorDetailSchema:
+    type: object
+    description: A more detailed error response schema.
+    properties:
+      field:
+        type: string
+      type:
+        type: string
+      message:
+        type: string
+      moreInfo:
+        type: string
+  AccessTokenRequest:
+    type: object
+    properties:
+      grantType:
+        type: string
+        description: "grant type : CODE or REFRESH_CODE"
+      refreshCode:
+        type: string
+        description: the value of refresh code .
+      code:
+        type: string
+        description: the value of code
+      clientId:
+        type: string
+        description: the id of client.

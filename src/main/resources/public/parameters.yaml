@@ -1,0 +1,27 @@
+responseType:
+  name: response_type
+  description: response type.
+  default: code
+  in: query
+  type: String
+  required: true
+  minLength: 3
+  maxLength: 36
+clientId:
+  name: client_id
+  description: id of client.
+  in: query
+  type: String
+  required: true
+  minLength: 3
+  maxLength: 36
+accessTokenRequest:
+  name: body
+  description:
+  in: body
+  type: object
+  required: true
+  schema:
+      $ref: "./api-description.yaml#/definitions/AccessTokenRequest"
+      example:
+        $ref: accesstoken-get-request-example.json

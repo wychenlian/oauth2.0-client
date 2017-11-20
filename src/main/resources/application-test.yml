@@ -1,0 +1,26 @@
+---
+spring:
+  profiles: test
+  jpa:
+    show-sql: true
+    properties:
+      eclipselink:
+        logging.level: FINE
+        generate-ddl: none
+        jdbc.allow-native-sql-queries: true
+        cache.shared.default: false
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:5432/postgres?currentSchema=caas2
+    username: postgres
+    password: ${DB_PASS}
+vcap.application: ${vcap.something}
+server:
+  port: 8081
+flyway:
+  enabled: true
+  locations:
+    - db/migration/oauth_client
+  table: oauth_client_schema_version
+  schemas: caas2
+  baselineOnMigrate: true
+db.clean-on-startup: true
