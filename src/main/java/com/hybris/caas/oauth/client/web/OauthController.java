@@ -14,11 +14,13 @@ import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -68,8 +70,15 @@ public class OauthController {
             e.printStackTrace();
         }
         System.out.println("-----------客户端/Get Authorize Code By ClientId End--------------------------------------------------------------------------------");
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Object> stringResponseEntity = restTemplate.getForEntity("http://localhost:8082/oauth/server/"+requestUrl,Object.class);
+        if (stringResponseEntity.getStatusCode().equals(HttpStatus.FOUND)){
+               String loginUrl = "http://" + stringResponseEntity.getHeaders().get("Location").get(0);
+               response.sendRedirect(loginUrl);
+        }else{
+            logger.info("request authorize code did get a correct return.");
+        }
 
-        response.sendRedirect("http://localhost:8082/oauth/server/"+requestUrl);
     }
 
     //接受客户端返回的code，提交申请access token的请求
